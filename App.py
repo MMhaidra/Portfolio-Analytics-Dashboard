@@ -16,6 +16,7 @@ import tempfile
 import os
 # from io import BytesIO # Not used for temp file handling here
 import re
+import math # Import math for sqrt
 
 # === Configuration ===
 st.set_page_config(
@@ -197,14 +198,25 @@ def generate_visualizations(df_sorted):
         xaxis_title="Stocks", yaxis_title="Gain/Loss (MAD)"
     )
 
-    # --- 3. TREEMAP VISUALIZATION ---
+    # --- 3. TREEMAP VISUALIZATION (Improved Visibility for Small Holdings) ---
+    # Add a small constant before sqrt to ensure small holdings are visible
+    # This makes the size proportional to sqrt(amount + constant)
+    SIZE_CONSTANT = 100.0 
+    df_viz['adjusted_amount'] = df_viz['amount'] + SIZE_CONSTANT
+    df_viz['sqrt_adjusted_amount'] = df_viz['adjusted_amount'].apply(math.sqrt)
+    
     treemap_fig = px.treemap(
-        df_viz, path=[px.Constant("Portfolio"), 'stock'], values='amount',
-        color='perf_pct', color_continuous_scale='RdYlGn', color_continuous_midpoint=0,
-        title="Portfolio Treemap (Size=Amount, Color=Performance)",
-        hover_data=['quantity', 'price', 'prmp']
+        df_viz, path=[px.Constant("Portfolio"), 'stock'],
+        values='sqrt_adjusted_amount', # Changed to sqrt of adjusted amount for better visibility
+        color='perf_pct', # Color is directly based on perf_pct
+        color_continuous_scale='RdYlGn', # Red for negative, Green for positive
+        color_continuous_midpoint=0, # Midpoint is 0, so 0% perf is neutral (white/yellow)
+        title=f"Portfolio Treemap (Size=√(Amount+{SIZE_CONSTANT:.0f}), Color=Performance)",
+        hover_data=['quantity', 'price', 'prmp', 'amount', 'perf_pct'] # Include perf_pct in hover
     )
     treemap_fig.update_layout(height=500)
+    # Explicitly remove text labels from segments (as requested)
+    # treemap_fig.update_traces(textinfo="none") # This line is intentionally omitted or commented out
 
     # --- 4. INTERACTIVE DASHBOARD SUMMARY (Subplots) ---
     dashboard_fig = make_subplots(
@@ -283,7 +295,7 @@ def generate_visualizations(df_sorted):
         textposition="top center", textfont=dict(size=10),
         marker=dict(
             size=df_viz['amount'] / 50, # Bubble size by investment amount
-            color=['#2E8B57' if x > 0 else '#DC143C' for x in df_viz['perf_pct']],
+            color=['#2E8B57' if x > 0 else '#DC143C' for x in df_viz['perf_pct']], # Color logic confirmed
             opacity=0.7, line=dict(width=1, color='black')
         ),
         hovertemplate='<b>%{text}</b><br>Weight: %{x:.1f}%<br>Performance: %{y:.1f}%<br>Amount: %{customdata:,.0f} MAD<extra></extra>',
@@ -369,6 +381,14 @@ st.title("📊 Portfolio Analytics Dashboard")
 st.markdown("""
 Upload your **single** Wafabourse portfolio statement (PDF format) to analyze your investment performance. 
 The dashboard will extract positions and generate comprehensive visualizations.
+
+### Steps to Obtain Your Portfolio Statement:
+1.  Log in to the **Wafabourse platform**.
+2.  Navigate to **Mon portefeuille**.
+3.  Click on **Titres**.
+4.  Download the **PDF statement**.
+
+Once you have the PDF, upload it here to get started.
 """)
 
 # Sidebar for file upload
@@ -394,7 +414,7 @@ with st.sidebar:
 
     **How to Use:**
 
-    1.  Obtain your portfolio statement PDF from the Wafabourse platform.
+    1.  Follow the steps above to obtain your portfolio statement PDF from Wafabourse.
     2.  Upload the PDF using the file uploader in the sidebar.
     3.  Explore the different tabs to view visualizations and insights.
     4.  Download the processed data as a CSV for further analysis if needed.
@@ -406,8 +426,17 @@ if not uploaded_file:
     st.info("Please upload a single PDF portfolio statement to get started.")
     # Show example
     st.subheader("Example Output")
-    st.image("https://via.placeholder.com/800x400?text=Portfolio+Dashboard+Visualizations", 
-             caption="Sample portfolio analysis visualizations")
+    # Ensure Dashboard.png is in the same directory as app.py
+    # Use a try-except block to handle cases where the image might not be found locally
+    # but is intended for deployment (where it should be present)
+    try:
+        # First, try to load the local image file
+        st.image("Dashboard.png", caption="Sample portfolio analysis visualizations")
+    except Exception as e:
+        # If the local file is not found, show a placeholder with a note
+        st.warning("Example image 'Dashboard.png' not found locally. This is normal if running from Streamlit Cloud.")
+        st.image("https://via.placeholder.com/800x400?text=Portfolio+Dashboard+Visualizations", 
+                 caption="Sample portfolio analysis visualizations (Placeholder)")
 else:
     with st.spinner("Processing PDF file..."):
         df = parse_portfolio_pdfs(uploaded_file) # Pass single file
