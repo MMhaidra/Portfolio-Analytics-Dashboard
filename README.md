@@ -2,6 +2,8 @@
 
 This Streamlit Application provides a comprehensive dashboard for analyzing investment portfolios, specifically designed to parse and visualize data from Wafabourse portfolio statements in PDF format.
 
+![Dashboard](Dashboard.png)
+
 ## Features
 
 *   **PDF Parsing:** Upload your Wafabourse portfolio statement (PDF) and automatically extract stock holdings, quantities, current prices, and purchase reference prices (PRMP).
