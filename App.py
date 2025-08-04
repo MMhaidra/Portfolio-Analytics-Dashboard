@@ -1,5 +1,4 @@
 # app.py
-
 import streamlit as st
 import pathlib
 from dataclasses import dataclass, asdict, field
@@ -17,7 +16,6 @@ import os
 # from io import BytesIO # Not used for temp file handling here
 import re
 import math # Import math for sqrt
-
 # === Configuration ===
 st.set_page_config(
     page_title="Portfolio Analytics Dashboard",
@@ -25,7 +23,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 # === Data Model ===
 @dataclass(slots=True, frozen=True)
 class Position:
@@ -37,12 +34,10 @@ class Position:
     amount: float = field(init=False)
     gain: float = field(init=False)
     perf_pct: float = field(init=False)
-
     def __post_init__(self):
         object.__setattr__(self, 'amount', self.quantity * self.price)
         object.__setattr__(self, 'gain', (self.price - self.prmp) * self.quantity)
         object.__setattr__(self, 'perf_pct', (self.price - self.prmp) / self.prmp if self.prmp != 0 else 0)
-
 # French month mapping for date parsing
 MONTHS = {
     'janvier':1, 'janv':1, 'fevrier':2, 'février':2, 'fevr':2, 'févr':2,
@@ -50,7 +45,6 @@ MONTHS = {
     'juillet':7, 'juil':7, 'aout':8, 'août':8, 'septembre':9, 'sept':9,
     'octobre':10, 'oct':10, 'novembre':11, 'nov':11, 'decembre':12, 'décembre':12, 'dec':12, 'déc':12
 }
-
 def _parse_statement_date(page) -> datetime:
     """Extracts the statement date from a PDF page."""
     txt = page.get_text()
@@ -67,7 +61,6 @@ def _parse_statement_date(page) -> datetime:
             month = MONTHS.get(mo, 1)
             return datetime(int(year), month, int(day))
     return datetime.now() # Fallback
-
 def safe_float_convert(value_str):
     """Safely converts a string to a float, handling common formatting issues."""
     if value_str is None or (isinstance(value_str, str) and value_str.strip() == ''):
@@ -83,7 +76,6 @@ def safe_float_convert(value_str):
         return float(clean_str)
     except (ValueError, TypeError):
         return None
-
 def is_wafabourse_pdf(doc):
     """Checks if the PDF appears to be from Wafabourse by looking for specific text."""
     # Check first few pages for characteristic text
@@ -94,26 +86,21 @@ def is_wafabourse_pdf(doc):
         if any(keyword in text for keyword in ['wafabourse', 'portefeuille', 'valeur', 'quantité']):
             return True
     return False
-
 def parse_portfolio_pdfs(uploaded_file): # Accept single file now
     """Parses portfolio data from an uploaded PDF file."""
     all_positions = []
     if not uploaded_file:
         return pd.DataFrame()
-
     # Save uploaded file to a temporary location to be read by PyMuPDF
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
         tmp_file.write(uploaded_file.read())
         tmp_path = tmp_file.name
-
     try:
         doc = fitz.open(tmp_path)
-        
         # Validate PDF source
         if not is_wafabourse_pdf(doc):
             st.error("❌ The uploaded PDF does not appear to be a valid Wafabourse portfolio statement. Please check the file and try again.")
             return pd.DataFrame() # Return empty DataFrame on invalid PDF
-
         for page in doc:
             tables = page.find_tables()
             if not tables:
@@ -144,19 +131,16 @@ def parse_portfolio_pdfs(uploaded_file): # Accept single file now
     finally:
         # Ensure the temporary file is always deleted
         os.unlink(tmp_path)
-
     if not all_positions:
         # If no data was found even in a valid PDF, show a warning
         # Note: doc is closed, so re-checking is tricky. Just show a general warning.
         st.warning("⚠️ No valid portfolio data could be extracted from the PDF. The format might be different or empty.")
         return pd.DataFrame()
     return pd.DataFrame([asdict(p) for p in all_positions])
-
 def generate_visualizations(df_sorted):
     """Generates all visualizations for the dashboard."""
     if df_sorted.empty:
         return {}
-
     df_viz = df_sorted.copy()
     df_viz['weight'] = df_viz['amount'] / df_viz['amount'].sum()
     df_viz['abs_gain'] = df_viz['gain'].abs()
@@ -204,7 +188,6 @@ def generate_visualizations(df_sorted):
     SIZE_CONSTANT = 100.0 
     df_viz['adjusted_amount'] = df_viz['amount'] + SIZE_CONSTANT
     df_viz['sqrt_adjusted_amount'] = df_viz['adjusted_amount'].apply(math.sqrt)
-    
     treemap_fig = px.treemap(
         df_viz, path=[px.Constant("Portfolio"), 'stock'],
         values='sqrt_adjusted_amount', # Changed to sqrt of adjusted amount for better visibility
@@ -228,6 +211,8 @@ def generate_visualizations(df_sorted):
     # Performance histogram
     dashboard_fig.add_trace(go.Histogram(x=df_viz['perf_pct']*100, name="Performance %", nbinsx=15,
                                         marker_color='lightblue', opacity=0.7), row=1, col=1)
+    dashboard_fig.update_xaxes(title_text="Performance (%)", row=1, col=1)
+    dashboard_fig.update_yaxes(title_text="Count of Stocks", row=1, col=1)
     # Amount vs Gain scatter
     dashboard_fig.add_trace(go.Scatter(
         x=df_viz['amount'], y=df_viz['gain'], mode='markers',
@@ -236,12 +221,16 @@ def generate_visualizations(df_sorted):
         name="Amount vs Gain",
         hovertemplate='<b>%{text}</b><br>Amount: %{x:,.0f}<br>Gain: %{y:+,.0f}<extra></extra>'
     ), row=1, col=2)
+    dashboard_fig.update_xaxes(title_text="Investment Amount (MAD)", row=1, col=2)
+    dashboard_fig.update_yaxes(title_text="Gain/Loss (MAD)", row=1, col=2)
     # Weight distribution
     dashboard_fig.add_trace(go.Bar(
         x=[stock[:8] for stock in df_viz['stock']], y=df_viz['weight']*100,
         name="Weight %", marker_color='lightcoral',
         text=[f"{w:.1f}%" for w in df_viz['weight']*100], textposition='outside'
     ), row=2, col=1)
+    dashboard_fig.update_xaxes(title_text="Stock", row=2, col=1)
+    dashboard_fig.update_yaxes(title_text="Weight (%)", row=2, col=1)
     # Efficiency (Gain per MAD invested)
     efficiency = (df_viz['gain'] / df_viz['amount']) * 100
     dashboard_fig.add_trace(go.Bar(
@@ -249,6 +238,8 @@ def generate_visualizations(df_sorted):
         name="Efficiency %", marker_color='gold',
         text=[f"{e:+.1f}%" for e in efficiency], textposition='outside'
     ), row=2, col=2)
+    dashboard_fig.update_xaxes(title_text="Stock", row=2, col=2)
+    dashboard_fig.update_yaxes(title_text="Efficiency (%)", row=2, col=2)
     dashboard_fig.update_layout(height=800, title_text="Portfolio Dashboard Overview", showlegend=False)
     dashboard_fig.update_xaxes(tickangle=45, row=2, col=1)
     dashboard_fig.update_xaxes(tickangle=45, row=2, col=2)
@@ -256,7 +247,6 @@ def generate_visualizations(df_sorted):
     # --- 5. TOP WINNERS & LOSERS ---
     winners = df_viz[df_viz['perf_pct'] > 0].sort_values('perf_pct', ascending=True)
     losers = df_viz[df_viz['perf_pct'] < 0].sort_values('perf_pct', ascending=False)
-
     winners_fig = go.Figure()
     if not winners.empty:
         winners_fig.add_trace(go.Bar(
@@ -268,7 +258,6 @@ def generate_visualizations(df_sorted):
             title='Top Winners', xaxis_title='Performance (%)', yaxis_title='Stock',
             height=400 + len(winners) * 20, margin=dict(l=150)
         )
-
     losers_fig = go.Figure()
     if not losers.empty:
         losers_fig.add_trace(go.Bar(
@@ -314,11 +303,9 @@ def generate_visualizations(df_sorted):
         elif amount >= 1000: return "🟡 Medium (1K-3K)"
         else: return "🔵 Small (<1K)"
     df_viz['size_category'] = df_viz['amount'].apply(categorize_holding)
-    
     value_fig = px.pie(df_viz, names='size_category', values='amount',
                       title='Holdings by Value Distribution',
                       color_discrete_sequence=['#FF6B6B', '#4ECDC4', '#45B7D1'])
-    
     # For count distribution, we need to count the number of rows per category
     count_data = df_viz['size_category'].value_counts().reset_index()
     count_data.columns = ['size_category', 'count']
@@ -331,7 +318,6 @@ def generate_visualizations(df_sorted):
     roi = (df_viz['gain'].sum() / total_invested) * 100 if total_invested > 0 else 0
     winning_positions = len(df_viz[df_viz['gain'] > 0])
     losing_positions = len(df_viz[df_viz['gain'] < 0])
-    
     # Prepare metrics data ensuring clean types for Arrow compatibility
     # Create a DataFrame with only string/object columns to avoid Arrow issues
     metrics_data = {
@@ -375,22 +361,18 @@ def generate_visualizations(df_sorted):
         "portfolio_df": portfolio_df,
         "df_viz": df_viz # Pass df_viz for insights
     }
-
 # === Main App Logic ===
 st.title("📊 Portfolio Analytics Dashboard")
 st.markdown("""
 Upload your **single** Wafabourse portfolio statement (PDF format) to analyze your investment performance. 
 The dashboard will extract positions and generate comprehensive visualizations.
-
 ### Steps to Obtain Your Portfolio Statement:
 1.  Log in to the **Wafabourse platform**.
 2.  Navigate to **Mon portefeuille**.
 3.  Click on **Titres**.
 4.  Download the **PDF statement**.
-
 Once you have the PDF, upload it here to get started.
 """)
-
 # Sidebar for file upload
 with st.sidebar:
     st.header("Upload Portfolio Statement")
@@ -403,24 +385,18 @@ with st.sidebar:
     st.header("About This Dashboard")
     st.markdown("""
     This dashboard is designed to help you analyze your Wafabourse portfolio statements.
-
     **Key Features:**
-
     *   **Data Extraction:** Automatically parses your PDF statement to extract stock holdings, quantities, prices, and purchase costs.
     *   **Performance Analysis:** Visualizes your portfolio's unrealized profit & loss (P&L) through various charts, identifying top winners and underperformers.
     *   **Risk Assessment:** Analyzes the risk-return profile of your investments, showing how performance relates to the weight of each holding in your portfolio.
     *   **Portfolio Composition:** Breaks down your portfolio by the value and number of holdings, giving you a clear picture of diversification.
     *   **Actionable Insights:** Provides summarized metrics and textual analysis to help you understand your portfolio's health and make informed decisions.
-
     **How to Use:**
-
     1.  Follow the steps above to obtain your portfolio statement PDF from Wafabourse.
     2.  Upload the PDF using the file uploader in the sidebar.
     3.  Explore the different tabs to view visualizations and insights.
     4.  Download the processed data as a CSV for further analysis if needed.
-
     """)
-
 # Main content
 if not uploaded_file:
     st.info("Please upload a single PDF portfolio statement to get started.")
@@ -448,11 +424,9 @@ else:
             total_amount = df_sorted['amount'].sum()
             total_gain = df_sorted['gain'].sum()
             total_invested = total_amount - total_gain
-
             # Display statement date
             statement_date = df['statement_date'].iloc[0].strftime('%d %b %Y')
             st.success(f"✅ Successfully processed portfolio statement dated {statement_date}")
-
             # Show summary metrics
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Total Positions", len(df))
@@ -460,31 +434,55 @@ else:
             col3.metric("Total Invested", f"{total_invested:,.0f} MAD")
             col4.metric("Unrealized P&L", f"{total_gain:+,.0f} MAD", 
                        delta=f"{(total_gain/total_invested*100):+.1f}%" if total_invested > 0 else "N/A")
-
             # Generate visualizations
             viz = generate_visualizations(df_sorted)
-
             # Create tabs for different visualizations
             tab1, tab2, tab3, tab4, tab5 = st.tabs([
                 "📊 Overview", "📈 Performance Analysis", 
                 "📉 Risk Analysis", "💎 Portfolio Composition",
                 "📋 Detailed Data"
             ])
-
             with tab1:
                 st.subheader("Portfolio Summary")
+                # --- Detailed Portfolio Holdings Table ---
+                st.markdown("""
+                **Detailed Portfolio Holdings Table:**
+                This table lists all your stock holdings, showing the stock name, quantity, current price, total current value, purchase reference market price (PRMP), unrealized gain/loss (with green/red indicators), and performance percentage (with green/red indicators). It's sorted by the current value of the holding, highest first.
+                """)
                 # Use the display-friendly DataFrame
                 st.dataframe(viz["portfolio_df"], use_container_width=True, hide_index=True)
+                
                 st.subheader("Key Metrics")
+                # --- Portfolio Key Metrics Table ---
+                st.markdown("""
+                **Portfolio Key Metrics Table:**
+                This table summarizes essential quantitative metrics of your portfolio, including total value, total invested capital, overall unrealized P&L and ROI, the number of winning/losing positions, your best and worst performing stocks, and the concentration of your portfolio in the top 5 holdings.
+                """)
                 # Use the display-friendly DataFrame (strings only)
                 st.dataframe(viz["metrics_df"], use_container_width=True, hide_index=True)
+                
                 st.subheader("Portfolio Allocation")
+                # --- Portfolio Allocation Pie Chart ---
+                st.markdown("""
+                **Portfolio Allocation Pie Chart:**
+                This chart shows the relative weight of each stock in your portfolio based on its current market value. It helps visualize how diversified your holdings are and which stocks represent the largest portions of your investments.
+                """)
                 st.plotly_chart(viz["pie"], use_container_width=True, key="tab1_pie")
+                
                 st.subheader("Portfolio Treemap")
+                # --- Portfolio Treemap ---
+                st.markdown("""
+                **Portfolio Treemap:**
+                This treemap provides a hierarchical view of your portfolio. Each rectangle represents a stock, with its size roughly proportional to the square root of its current value (to make smaller holdings more visible) and its color indicating performance (green for positive, red for negative, centered around 0%).
+                """)
                 st.plotly_chart(viz["treemap"], use_container_width=True, key="tab1_treemap")
-
             with tab2:
                 st.subheader("Performance Waterfall")
+                # --- Performance Waterfall Chart ---
+                st.markdown("""
+                **Portfolio P&L Waterfall Analysis:**
+                This waterfall chart breaks down the total unrealized profit or loss (P&L) of your portfolio by individual stock. It visually adds up the gains and losses, showing how each holding contributes to the overall performance. Green bars indicate gains, red bars indicate losses, and the final blue bar shows the total P&L.
+                """)
                 st.plotly_chart(viz["waterfall"], use_container_width=True, key="tab2_waterfall")
                 
                 # --- Textual Insights for Performance ---
@@ -494,7 +492,6 @@ else:
                 avg_perf = df_v['perf_pct'].mean() * 100
                 perf_insight = f"""
                 **Performance Insights:**
-                
                 *   Your portfolio's average performance is **{avg_perf:.2f}%**.
                 *   The top 3 performing stocks are:
                     1. {top_3_winners.iloc[0]['stock']} ({top_3_winners.iloc[0]['perf_pct']*100:+.1f}%)
@@ -510,14 +507,49 @@ else:
                 st.subheader("Top Performers & Underperformers")
                 col1, col2 = st.columns(2)
                 with col1:
+                    # --- Top Performers Bar Chart ---
+                    st.markdown("""
+                    **Top Performers & Underperformers:**
+                    These horizontal bar charts rank your stocks by performance.
+                    *   **Top Performers:** Shows stocks with positive returns, ranked from best to worst.
+                    """)
                     st.plotly_chart(viz["winners"], use_container_width=True, key="tab2_winners")
                 with col2:
+                    # --- Underperformers Bar Chart ---
+                    st.markdown("""
+                    *   **Underperformers:** Shows stocks with negative returns, ranked from least worst to worst. If all stocks are winning, a congratulatory message is shown instead.
+                    """)
                     st.plotly_chart(viz["losers"], use_container_width=True, key="tab2_losers")
+                
                 st.subheader("Performance Distribution")
-                st.plotly_chart(viz["dashboard"], use_container_width=True, key="tab2_dashboard")
-
+                # --- Interactive Dashboard Summary (Subplots) - Performance Distribution & Amount vs Gain ---
+                st.markdown("""
+                **This section contains two charts providing different perspectives:**
+                1.  **Performance Distribution:** A histogram showing how many stocks fall into different performance ranges (e.g., -10% to -5%, 0% to 5%, etc.).
+                2.  **Amount vs Gain:** A scatter plot where each point is a stock. The X-axis shows the investment amount, and the Y-axis shows the gain/loss. The color indicates performance. This helps see if larger investments are driving gains/losses and identify outliers.
+                """)
+                # Extract the first subplot (Performance Distribution and Amount vs Gain) from the dashboard figure
+                dashboard_fig_part1 = make_subplots(rows=1, cols=2, subplot_titles=('Performance Distribution', 'Amount vs Gain'), horizontal_spacing=0.1)
+                # Add traces from the original dashboard figure
+                # Assuming the original traces are at indices 0 and 1 for these subplots
+                dashboard_fig_part1.add_trace(viz["dashboard"].data[0], row=1, col=1) # Histogram
+                dashboard_fig_part1.add_trace(viz["dashboard"].data[1], row=1, col=2) # Scatter
+                # Update layout to match the part we are showing
+                dashboard_fig_part1.update_layout(height=400, title_text="Portfolio Dashboard Overview (Part 1)", showlegend=False)
+                dashboard_fig_part1.update_xaxes(title_text="Performance (%)", row=1, col=1)
+                dashboard_fig_part1.update_yaxes(title_text="Count of Stocks", row=1, col=1)
+                dashboard_fig_part1.update_xaxes(title_text="Investment Amount (MAD)", row=1, col=2)
+                dashboard_fig_part1.update_yaxes(title_text="Gain/Loss (MAD)", row=1, col=2)
+                dashboard_fig_part1.update_xaxes(tickangle=45, row=1, col=1)
+                dashboard_fig_part1.update_xaxes(tickangle=45, row=1, col=2)
+                st.plotly_chart(dashboard_fig_part1, use_container_width=True, key="tab2_dashboard_part1")
             with tab3:
                 st.subheader("Risk-Return Analysis")
+                # --- Risk-Return Scatter Plot ---
+                st.markdown("""
+                **Risk-Return Analysis:**
+                This scatter plot visualizes the relationship between the weight of a stock in your portfolio (X-axis) and its performance (Y-axis). The size of each bubble represents the current investment amount in that stock. It helps identify high-weight/low-performance holdings or small investments with high/low returns. The horizontal dashed line at 0% performance serves as a reference.
+                """)
                 st.plotly_chart(viz["risk_return"], use_container_width=True, key="tab3_risk_return")
                 
                 # --- Textual Insights for Risk ---
@@ -530,28 +562,39 @@ else:
                 best_perf = df_v.loc[df_v['perf_pct'].idxmax()]
                 # Find worst performer
                 worst_perf = df_v.loc[df_v['perf_pct'].idxmin()]
-                
                 risk_insight = f"""
                 **Risk Insights:**
-
                 *   Your largest single investment is **{largest_holding['stock']}** worth **{largest_holding['amount']:,.0f} MAD** ({largest_holding['weight']*100:.1f}% of portfolio).
                 *   The stock with the highest portfolio weight is **{highest_weight_holding['stock']}** at **{highest_weight_holding['weight']*100:.1f}%**.
                 *   **{best_perf['stock']}** is your best performer with a **{best_perf['perf_pct']*100:+.1f}%** return.
                 *   **{worst_perf['stock']}** is your worst performer with a **{worst_perf['perf_pct']*100:+.1f}%** return.
-                
                 Consider if your largest holdings align with your risk tolerance and if the weight of your worst performers is significant.
                 """
                 st.markdown(risk_insight)
-
+                
                 st.subheader("Portfolio Composition by Size")
                 col1, col2 = st.columns(2)
                 with col1:
+                    # --- Portfolio Composition by Value Pie Chart ---
+                    st.markdown("""
+                    **Holdings by Value & Count Distribution:**
+                    These two pie charts categorize your holdings based on their current value:
+                    *   **Holdings by Value Distribution:** Shows what proportion of your total portfolio value is held in 'Large' (≥3K MAD), 'Medium' (1K-3K MAD), and 'Small' (<1K MAD) positions.
+                    """)
                     st.plotly_chart(viz["value_distribution"], use_container_width=True, key="tab3_value_dist")
                 with col2:
+                    # --- Portfolio Composition by Count Pie Chart ---
+                    st.markdown("""
+                    *   **Holdings by Count Distribution:** Shows what proportion of the *number* of your holdings fall into these same size categories. This helps understand if your portfolio is concentrated in a few large positions or many small ones.
+                    """)
                     st.plotly_chart(viz["count_distribution"], use_container_width=True, key="tab3_count_dist")
-
             with tab4:
                 st.subheader("Portfolio Allocation")
+                # --- Portfolio Allocation Pie Chart (Repeated for context) ---
+                st.markdown("""
+                **Portfolio Allocation Pie Chart:**
+                This chart shows the relative weight of each stock in your portfolio based on its current market value. It helps visualize how diversified your holdings are and which stocks represent the largest portions of your investments.
+                """)
                 st.plotly_chart(viz["pie"], use_container_width=True, key="tab4_pie") # Key added
                 
                 # --- Textual Insights for Composition ---
@@ -559,30 +602,64 @@ else:
                 top_5_value = df_v.nlargest(5, 'amount')
                 top_5_value_sum = top_5_value['amount'].sum()
                 top_5_weight = top_5_value_sum / total_amount * 100
-
                 size_counts = df_v['size_category'].value_counts()
                 most_common_size = size_counts.idxmax()
                 most_common_size_count = size_counts.max()
-
                 comp_insight = f"""
                 **Composition Insights:**
-
                 *   The top 5 holdings by value account for **{top_5_weight:.1f}%** of your total portfolio value ({top_5_value_sum:,.0f} MAD / {total_amount:,.0f} MAD).
                 *   You have the most holdings in the **'{most_common_size}'** category ({most_common_size_count} holdings).
-                
                 A high concentration in the top holdings might indicate less diversification. The distribution by count shows where you have the most individual positions.
                 """
                 st.markdown(comp_insight)
-
+                
                 st.subheader("Portfolio Composition by Size")
                 col1, col2 = st.columns(2)
                 with col1:
+                    # --- Portfolio Composition by Value Pie Chart (Repeated for context) ---
+                    st.markdown("""
+                    **Holdings by Value & Count Distribution:**
+                    These two pie charts categorize your holdings based on their current value:
+                    *   **Holdings by Value Distribution:** Shows what proportion of your total portfolio value is held in 'Large' (≥3K MAD), 'Medium' (1K-3K MAD), and 'Small' (<1K MAD) positions.
+                    """)
                     st.plotly_chart(viz["value_distribution"], use_container_width=True, key="tab4_value_dist") # Key added
                 with col2:
+                     # --- Portfolio Composition by Count Pie Chart (Repeated for context) ---
+                    st.markdown("""
+                    *   **Holdings by Count Distribution:** Shows what proportion of the *number* of your holdings fall into these same size categories. This helps understand if your portfolio is concentrated in a few large positions or many small ones.
+                    """)
                     st.plotly_chart(viz["count_distribution"], use_container_width=True, key="tab4_count_dist") # Key added
+                
                 st.subheader("Risk-Return Analysis")
+                # --- Risk-Return Scatter Plot (Repeated for context) ---
+                st.markdown("""
+                **Risk-Return Analysis:**
+                This scatter plot visualizes the relationship between the weight of a stock in your portfolio (X-axis) and its performance (Y-axis). The size of each bubble represents the current investment amount in that stock. It helps identify high-weight/low-performance holdings or small investments with high/low returns. The horizontal dashed line at 0% performance serves as a reference.
+                """)
                 st.plotly_chart(viz["risk_return"], use_container_width=True, key="tab4_risk_return") # Key added
 
+                st.subheader("Weight & Efficiency Distribution")
+                # --- Interactive Dashboard Summary (Subplots) - Weight Distribution & Gain per MAD Invested ---
+                st.markdown("""
+                **This section contains two charts providing different perspectives:**
+                3.  **Weight Distribution:** A bar chart showing the percentage weight of each stock in the portfolio.
+                4.  **Gain per MAD Invested:** A bar chart showing the efficiency of each investment, calculated as (Gain / Amount Invested) * 100. This indicates the percentage return on the money invested in each specific holding.
+                """)
+                # Extract the second subplot (Weight Distribution and Gain per MAD Invested) from the dashboard figure
+                dashboard_fig_part2 = make_subplots(rows=1, cols=2, subplot_titles=('Weight Distribution', 'Gain per MAD Invested'), horizontal_spacing=0.1)
+                # Add traces from the original dashboard figure
+                # Assuming the original traces are at indices 2 and 3 for these subplots
+                dashboard_fig_part2.add_trace(viz["dashboard"].data[2], row=1, col=1) # Bar - Weight
+                dashboard_fig_part2.add_trace(viz["dashboard"].data[3], row=1, col=2) # Bar - Efficiency
+                # Update layout to match the part we are showing
+                dashboard_fig_part2.update_layout(height=500, title_text="Portfolio Dashboard Overview (Part 2)", showlegend=False)
+                dashboard_fig_part2.update_xaxes(title_text="Stock", row=1, col=1)
+                dashboard_fig_part2.update_yaxes(title_text="Weight (%)", row=1, col=1)
+                dashboard_fig_part2.update_xaxes(title_text="Stock", row=1, col=2)
+                dashboard_fig_part2.update_yaxes(title_text="Efficiency (%)", row=1, col=2)
+                dashboard_fig_part2.update_xaxes(tickangle=45, row=1, col=1)
+                dashboard_fig_part2.update_xaxes(tickangle=45, row=1, col=2)
+                st.plotly_chart(dashboard_fig_part2, use_container_width=True, key="tab4_dashboard_part2")
             with tab5:
                 st.subheader("Raw Portfolio Data")
                 st.dataframe(df_sorted, use_container_width=True)
