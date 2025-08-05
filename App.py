@@ -535,7 +535,7 @@ else:
                 dashboard_fig_part1.add_trace(viz["dashboard"].data[0], row=1, col=1) # Histogram
                 dashboard_fig_part1.add_trace(viz["dashboard"].data[1], row=1, col=2) # Scatter
                 # Update layout to match the part we are showing
-                dashboard_fig_part1.update_layout(height=400, title_text="Portfolio Dashboard Overview (Part 1)", showlegend=False)
+                dashboard_fig_part1.update_layout(height=400, title_text="Portfolio Dashboard Overview", showlegend=False)
                 dashboard_fig_part1.update_xaxes(title_text="Performance (%)", row=1, col=1)
                 dashboard_fig_part1.update_yaxes(title_text="Count of Stocks", row=1, col=1)
                 dashboard_fig_part1.update_xaxes(title_text="Investment Amount (MAD)", row=1, col=2)
@@ -652,7 +652,7 @@ else:
                 dashboard_fig_part2.add_trace(viz["dashboard"].data[2], row=1, col=1) # Bar - Weight
                 dashboard_fig_part2.add_trace(viz["dashboard"].data[3], row=1, col=2) # Bar - Efficiency
                 # Update layout to match the part we are showing
-                dashboard_fig_part2.update_layout(height=500, title_text="Portfolio Dashboard Overview (Part 2)", showlegend=False)
+                dashboard_fig_part2.update_layout(height=500, title_text="Portfolio Dashboard Overview", showlegend=False)
                 dashboard_fig_part2.update_xaxes(title_text="Stock", row=1, col=1)
                 dashboard_fig_part2.update_yaxes(title_text="Weight (%)", row=1, col=1)
                 dashboard_fig_part2.update_xaxes(title_text="Stock", row=1, col=2)
