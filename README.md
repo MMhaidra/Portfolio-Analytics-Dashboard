@@ -88,9 +88,13 @@ The Application relies on the following Python libraries, which are listed in `r
 ## Project Structure
 
 portfolio-dashboard/
+
 ├── App.py # Main Streamlit application script.
+
 ├── requirements.txt # List of required Python packages.
+
 ├── README.md # This file.
+
 └── .gitignore # (Optional) Specifies files/folders Git should ignore (e.g., venv/, *.pyc).
 
 
