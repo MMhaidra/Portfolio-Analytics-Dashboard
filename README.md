@@ -1,6 +1,6 @@
 # Portfolio Analytics Dashboard
 
-This Streamlit Application provides a comprehensive dashboard for analyzing investment portfolios, specifically designed to parse and visualize data from Wafabourse portfolio statements in PDF format.
+This Streamlit Application provides a comprehensive dashboard for analyzing investment portfolios, specifically designed to parse and visualize data from Wafabourse PDF portfolio statements.
 
 ![Dashboard](Dashboard.png)
 
