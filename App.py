@@ -439,8 +439,7 @@ else:
             # Create tabs for different visualizations
             tab1, tab2, tab4, tab5 = st.tabs([
                 "📊 Overview", "📈 Performance Analysis", 
-                "📉 Risk Analysis", "💎 Portfolio Composition",
-                "📋 Detailed Data"
+                "💎 Portfolio Composition", "📋 Detailed Data"
             ])
             with tab1:
                 st.subheader("Portfolio Summary")
