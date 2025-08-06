@@ -437,7 +437,7 @@ else:
             # Generate visualizations
             viz = generate_visualizations(df_sorted)
             # Create tabs for different visualizations
-            tab1, tab2, tab3, tab4, tab5 = st.tabs([
+            tab1, tab2, tab4, tab5 = st.tabs([
                 "📊 Overview", "📈 Performance Analysis", 
                 "📉 Risk Analysis", "💎 Portfolio Composition",
                 "📋 Detailed Data"
@@ -543,51 +543,6 @@ else:
                 dashboard_fig_part1.update_xaxes(tickangle=45, row=1, col=1)
                 dashboard_fig_part1.update_xaxes(tickangle=45, row=1, col=2)
                 st.plotly_chart(dashboard_fig_part1, use_container_width=True, key="tab2_dashboard_part1")
-            with tab3:
-                st.subheader("Risk-Return Analysis")
-                # --- Risk-Return Scatter Plot ---
-                st.markdown("""
-                **Risk-Return Analysis:**
-                This scatter plot visualizes the relationship between the weight of a stock in your portfolio (X-axis) and its performance (Y-axis). The size of each bubble represents the current investment amount in that stock. It helps identify high-weight/low-performance holdings or small investments with high/low returns. The horizontal dashed line at 0% performance serves as a reference.
-                """)
-                st.plotly_chart(viz["risk_return"], use_container_width=True, key="tab3_risk_return")
-                
-                # --- Textual Insights for Risk ---
-                df_v = viz["df_viz"]
-                # Find largest holding by amount
-                largest_holding = df_v.loc[df_v['amount'].idxmax()]
-                # Find highest weight holding
-                highest_weight_holding = df_v.loc[df_v['weight'].idxmax()]
-                # Find best performer
-                best_perf = df_v.loc[df_v['perf_pct'].idxmax()]
-                # Find worst performer
-                worst_perf = df_v.loc[df_v['perf_pct'].idxmin()]
-                risk_insight = f"""
-                **Risk Insights:**
-                *   Your largest single investment is **{largest_holding['stock']}** worth **{largest_holding['amount']:,.0f} MAD** ({largest_holding['weight']*100:.1f}% of portfolio).
-                *   The stock with the highest portfolio weight is **{highest_weight_holding['stock']}** at **{highest_weight_holding['weight']*100:.1f}%**.
-                *   **{best_perf['stock']}** is your best performer with a **{best_perf['perf_pct']*100:+.1f}%** return.
-                *   **{worst_perf['stock']}** is your worst performer with a **{worst_perf['perf_pct']*100:+.1f}%** return.
-                Consider if your largest holdings align with your risk tolerance and if the weight of your worst performers is significant.
-                """
-                st.markdown(risk_insight)
-                
-                st.subheader("Portfolio Composition by Size")
-                col1, col2 = st.columns(2)
-                with col1:
-                    # --- Portfolio Composition by Value Pie Chart ---
-                    st.markdown("""
-                    **Holdings by Value & Count Distribution:**
-                    These two pie charts categorize your holdings based on their current value:
-                    *   **Holdings by Value Distribution:** Shows what proportion of your total portfolio value is held in 'Large' (≥3K MAD), 'Medium' (1K-3K MAD), and 'Small' (<1K MAD) positions.
-                    """)
-                    st.plotly_chart(viz["value_distribution"], use_container_width=True, key="tab3_value_dist")
-                with col2:
-                    # --- Portfolio Composition by Count Pie Chart ---
-                    st.markdown("""
-                    *   **Holdings by Count Distribution:** Shows what proportion of the *number* of your holdings fall into these same size categories. This helps understand if your portfolio is concentrated in a few large positions or many small ones.
-                    """)
-                    st.plotly_chart(viz["count_distribution"], use_container_width=True, key="tab3_count_dist")
             with tab4:
                 st.subheader("Portfolio Allocation")
                 # --- Portfolio Allocation Pie Chart (Repeated for context) ---
