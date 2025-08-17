@@ -447,7 +447,7 @@ if not uploaded_file:
     total_invested = total_amount - total_gain
     # Display statement date
     statement_date = df['statement_date'].iloc[0].strftime('%d %b %Y')
-    st.success(f"✅ Displaying default portfolio statement")
+    st.success(f"✅ Displaying default example portfolio")
     # Show summary metrics
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Positions", len(df))
