@@ -148,7 +148,6 @@ def parse_portfolio_pdfs(uploaded_file): # Accept single file now
 def get_default_portfolio():
     """Returns the default portfolio data as a DataFrame."""
     default_data = [
-       ```python
 {"stock": "TGCC", "quantity": 10.0, "price": 1070.0, "prmp": 732.18, "statement_date": "2025-08-12", "amount": 10700.0, "gain": 3378.200000000001, "perf_pct": 0.46138927586112716},
         {"stock": "TOTALENERGIES", "quantity": 4.0, "price": 1770.0, "prmp": 1768.93, "statement_date": "2025-08-12", "amount": 7080.0, "gain": 4.279999999999745, "perf_pct": 0.0006048854392202836},
         {"stock": "ATTIJARIWAFA BANK", "quantity": 8.0, "price": 768.0, "prmp": 691.24, "statement_date": "2025-08-12", "amount": 6144.0, "gain": 614.0799999999999, "perf_pct": 0.11104681442046177},
@@ -168,7 +167,6 @@ def get_default_portfolio():
         {"stock": "DELTA HOLDING", "quantity": 8.0, "price": 85.0, "prmp": 69.97, "statement_date": "2025-08-12", "amount": 680.0, "gain": 120.24000000000001, "perf_pct": 0.21480634557667574},
         {"stock": "COSUMAR", "quantity": 2.0, "price": 240.15, "prmp": 216.62, "statement_date": "2025-08-12", "amount": 480.3, "gain": 47.06, "perf_pct": 0.10862339580832794},
         {"stock": "ENNAKL", "quantity": 8.0, "price": 34.48, "prmp": 37.37, "statement_date": "2025-08-12", "amount": 275.84, "gain": -23.120000000000005, "perf_pct": -0.07733476050307736}
-```
     ]
     
     # Convert to DataFrame and ensure proper data types
