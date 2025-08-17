@@ -8,7 +8,6 @@ This Streamlit Application provides a comprehensive dashboard for analyzing inve
 
 *   **PDF Parsing:** Upload your Wafabourse portfolio statement (PDF) and automatically extract stock holdings, quantities, current prices, and purchase reference prices (PRMP).
 *   **Performance Analysis:** Visualize portfolio performance with waterfall charts, identify top winners and underperformers, and analyze performance distributions.
-*   **Risk Assessment:** Evaluate the risk-return profile of your investments using interactive scatter plots that consider holding weight and performance.
 *   **Portfolio Composition:** Understand your portfolio's structure through allocation pie charts, treemaps, and breakdowns by holding size (value and count).
 *   **Detailed Reporting:** View a sortable summary table of all positions and download the processed data as a CSV file.
 *   **Actionable Insights:** Get summarized metrics and textual analysis to understand your portfolio's health.
@@ -18,7 +17,7 @@ This Streamlit Application provides a comprehensive dashboard for analyzing inve
 1.  **Obtain Statement:** Get your portfolio statement PDF from the Wafabourse platform.
 2.  **Access Dashboard:** Navigate to the deployed dashboard URL (once deployed) or run it locally (see below).
 3.  **Upload PDF:** Use the file uploader in the sidebar to upload your Wafabourse portfolio statement PDF.
-4.  **Analyze:** Explore the different tabs (`Overview`, `Performance Analysis`, `Risk Analysis`, `Portfolio Composition`, `Detailed Data`) to view visualizations, metrics, and insights.
+4.  **Analyze:** Explore the different tabs (`Overview`, `Performance Analysis`, `Portfolio Composition`, `Detailed Data`) to view visualizations, metrics, and insights.
 5.  **Download Data:** If needed, download the extracted portfolio data as a CSV file from the `Detailed Data` tab.
 
 ## Deployment
@@ -96,7 +95,6 @@ portfolio-dashboard/
 ├── README.md # This file.
 
 └── .gitignore # (Optional) Specifies files/folders Git should ignore (e.g., venv/, *.pyc).
-
 
 
 ## Contributing
