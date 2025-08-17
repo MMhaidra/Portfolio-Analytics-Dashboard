@@ -388,7 +388,6 @@ with st.sidebar:
     **Key Features:**
     *   **Data Extraction:** Automatically parses your PDF statement to extract stock holdings, quantities, prices, and purchase costs.
     *   **Performance Analysis:** Visualizes your portfolio's unrealized profit & loss (P&L) through various charts, identifying top winners and underperformers.
-    *   **Risk Assessment:** Analyzes the risk-return profile of your investments, showing how performance relates to the weight of each holding in your portfolio.
     *   **Portfolio Composition:** Breaks down your portfolio by the value and number of holdings, giving you a clear picture of diversification.
     *   **Actionable Insights:** Provides summarized metrics and textual analysis to help you understand your portfolio's health and make informed decisions.
     **How to Use:**
