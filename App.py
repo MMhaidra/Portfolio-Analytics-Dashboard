@@ -148,25 +148,27 @@ def parse_portfolio_pdfs(uploaded_file): # Accept single file now
 def get_default_portfolio():
     """Returns the default portfolio data as a DataFrame."""
     default_data = [
-        {"stock": "TGCC", "quantity": 25.0, "price": 1070.0, "prmp": 732.18, "statement_date": "2025-08-12", "amount": 26750.0, "gain": 8445.500000000002, "perf_pct": 0.46138927586112716},
-        {"stock": "TOTALENERGIES", "quantity": 10.0, "price": 1770.0, "prmp": 1768.93, "statement_date": "2025-08-12", "amount": 17700.0, "gain": 10.699999999999364, "perf_pct": 0.0006048854392202836},
-        {"stock": "ATTIJARIWAFA BANK", "quantity": 20.0, "price": 768.0, "prmp": 691.24, "statement_date": "2025-08-12", "amount": 15360.0, "gain": 1535.1999999999998, "perf_pct": 0.11104681442046177},
-        {"stock": "SONASID", "quantity": 5.0, "price": 2455.0, "prmp": 1459.58, "statement_date": "2025-08-12", "amount": 12275.0, "gain": 4977.100000000001, "perf_pct": 0.6819907096562026},
-        {"stock": "ITISSALAT AL MAGHRIB", "quantity": 95.0, "price": 122.0, "prmp": 116.32, "statement_date": "2025-08-12", "amount": 11590.0, "gain": 539.6000000000006, "perf_pct": 0.048830811554332935},
-        {"stock": "CIH", "quantity": 25.0, "price": 426.5, "prmp": 426.98, "statement_date": "2025-08-12", "amount": 10662.5, "gain": -12.000000000000455, "perf_pct": -0.0011241744343997802},
-        {"stock": "SANLAM MAROC", "quantity": 5.0, "price": 2062.0, "prmp": 2027.59, "statement_date": "2025-08-12", "amount": 10310.0, "gain": 172.0500000000004, "perf_pct": 0.0169708866190897},
-        {"stock": "SOTHEMA", "quantity": 5.0, "price": 1835.0, "prmp": 1851.11, "statement_date": "2025-08-12", "amount": 9175.0, "gain": -80.5499999999995, "perf_pct": -0.008702886376282285},
-        {"stock": "AKDITAL", "quantity": 5.0, "price": 1562.0, "prmp": 1196.88, "statement_date": "2025-08-12", "amount": 7810.0, "gain": 1825.5999999999995, "perf_pct": 0.305059822204398},
-        {"stock": "BANK OF AFRICA", "quantity": 30.0, "price": 260.0, "prmp": 252.0, "statement_date": "2025-08-12", "amount": 7800.0, "gain": 240.0, "perf_pct": 0.031746031746031744},
-        {"stock": "VICENNE", "quantity": 15.0, "price": 455.0, "prmp": 238.34, "statement_date": "2025-08-12", "amount": 6825.0, "gain": 3249.9, "perf_pct": 0.9090375094402954},
-        {"stock": "AFMA", "quantity": 5.0, "price": 1307.0, "prmp": 1217.16, "statement_date": "2025-08-12", "amount": 6535.0, "gain": 449.1999999999996, "perf_pct": 0.07381116697886878},
-        {"stock": "BCP", "quantity": 15.0, "price": 325.0, "prmp": 295.87, "statement_date": "2025-08-12", "amount": 4875.0, "gain": 436.94999999999993, "perf_pct": 0.09845540271064993},
-        {"stock": "MARSA MAROC", "quantity": 5.0, "price": 944.0, "prmp": 738.39, "statement_date": "2025-08-12", "amount": 4720.0, "gain": 1028.05, "perf_pct": 0.27845718387302104},
-        {"stock": "CFG BANK", "quantity": 15.0, "price": 244.5, "prmp": 239.42, "statement_date": "2025-08-12", "amount": 3667.5, "gain": 76.20000000000019, "perf_pct": 0.02121794336312761},
-        {"stock": "DISTY TECH.", "quantity": 5.0, "price": 384.9, "prmp": 315.0, "statement_date": "2025-08-12", "amount": 1924.5, "gain": 349.4999999999999, "perf_pct": 0.22190476190476183},
-        {"stock": "DELTA HOLDING", "quantity": 20.0, "price": 85.0, "prmp": 69.97, "statement_date": "2025-08-12", "amount": 1700.0, "gain": 300.60000000000002, "perf_pct": 0.21480634557667574},
-        {"stock": "COSUMAR", "quantity": 5.0, "price": 240.15, "prmp": 216.62, "statement_date": "2025-08-12", "amount": 1200.75, "gain": 117.65, "perf_pct": 0.10862339580832794},
-        {"stock": "ENNAKL", "quantity": 20.0, "price": 34.48, "prmp": 37.37, "statement_date": "2025-08-12", "amount": 689.6, "gain": -57.80000000000001, "perf_pct": -0.07733476050307736}
+       ```python
+{"stock": "TGCC", "quantity": 10.0, "price": 1070.0, "prmp": 732.18, "statement_date": "2025-08-12", "amount": 10700.0, "gain": 3378.200000000001, "perf_pct": 0.46138927586112716},
+        {"stock": "TOTALENERGIES", "quantity": 4.0, "price": 1770.0, "prmp": 1768.93, "statement_date": "2025-08-12", "amount": 7080.0, "gain": 4.279999999999745, "perf_pct": 0.0006048854392202836},
+        {"stock": "ATTIJARIWAFA BANK", "quantity": 8.0, "price": 768.0, "prmp": 691.24, "statement_date": "2025-08-12", "amount": 6144.0, "gain": 614.0799999999999, "perf_pct": 0.11104681442046177},
+        {"stock": "SONASID", "quantity": 2.0, "price": 2455.0, "prmp": 1459.58, "statement_date": "2025-08-12", "amount": 4910.0, "gain": 1990.8400000000001, "perf_pct": 0.6819907096562026},
+        {"stock": "ITISSALAT AL MAGHRIB", "quantity": 38.0, "price": 122.0, "prmp": 116.32, "statement_date": "2025-08-12", "amount": 4636.0, "gain": 215.84000000000026, "perf_pct": 0.048830811554332935},
+        {"stock": "CIH", "quantity": 10.0, "price": 426.5, "prmp": 426.98, "statement_date": "2025-08-12", "amount": 4265.0, "gain": -4.800000000000182, "perf_pct": -0.0011241744343997802},
+        {"stock": "SANLAM MAROC", "quantity": 2.0, "price": 2062.0, "prmp": 2027.59, "statement_date": "2025-08-12", "amount": 4124.0, "gain": 68.82000000000016, "perf_pct": 0.0169708866190897},
+        {"stock": "SOTHEMA", "quantity": 2.0, "price": 1835.0, "prmp": 1851.11, "statement_date": "2025-08-12", "amount": 3670.0, "gain": -32.2199999999998, "perf_pct": -0.008702886376282285},
+        {"stock": "AKDITAL", "quantity": 2.0, "price": 1562.0, "prmp": 1196.88, "statement_date": "2025-08-12", "amount": 3124.0, "gain": 730.2399999999998, "perf_pct": 0.305059822204398},
+        {"stock": "BANK OF AFRICA", "quantity": 12.0, "price": 260.0, "prmp": 252.0, "statement_date": "2025-08-12", "amount": 3120.0, "gain": 96.0, "perf_pct": 0.031746031746031744},
+        {"stock": "VICENNE", "quantity": 6.0, "price": 455.0, "prmp": 238.34, "statement_date": "2025-08-12", "amount": 2730.0, "gain": 1299.96, "perf_pct": 0.9090375094402954},
+        {"stock": "AFMA", "quantity": 2.0, "price": 1307.0, "prmp": 1217.16, "statement_date": "2025-08-12", "amount": 2614.0, "gain": 179.67999999999984, "perf_pct": 0.07381116697886878},
+        {"stock": "BCP", "quantity": 6.0, "price": 325.0, "prmp": 295.87, "statement_date": "2025-08-12", "amount": 1950.0, "gain": 174.77999999999997, "perf_pct": 0.09845540271064993},
+        {"stock": "MARSA MAROC", "quantity": 2.0, "price": 944.0, "prmp": 738.39, "statement_date": "2025-08-12", "amount": 1888.0, "gain": 411.22, "perf_pct": 0.27845718387302104},
+        {"stock": "CFG BANK", "quantity": 6.0, "price": 244.5, "prmp": 239.42, "statement_date": "2025-08-12", "amount": 1467.0, "gain": 30.480000000000076, "perf_pct": 0.02121794336312761},
+        {"stock": "DISTY TECH.", "quantity": 2.0, "price": 384.9, "prmp": 315.0, "statement_date": "2025-08-12", "amount": 769.8, "gain": 139.79999999999995, "perf_pct": 0.22190476190476183},
+        {"stock": "DELTA HOLDING", "quantity": 8.0, "price": 85.0, "prmp": 69.97, "statement_date": "2025-08-12", "amount": 680.0, "gain": 120.24000000000001, "perf_pct": 0.21480634557667574},
+        {"stock": "COSUMAR", "quantity": 2.0, "price": 240.15, "prmp": 216.62, "statement_date": "2025-08-12", "amount": 480.3, "gain": 47.06, "perf_pct": 0.10862339580832794},
+        {"stock": "ENNAKL", "quantity": 8.0, "price": 34.48, "prmp": 37.37, "statement_date": "2025-08-12", "amount": 275.84, "gain": -23.120000000000005, "perf_pct": -0.07733476050307736}
+```
     ]
     
     # Convert to DataFrame and ensure proper data types
